@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ c.title }} · 공모전 검수{% endblock %}
+{% block body %}
+<p class="sub"><a href="{{ back }}">← 목록으로</a></p>
+<h1>{{ c.title }}</h1>
+<p class="sub">
+  {{ c.source }}
+  {% if c.link %}· <a href="{{ c.link }}" target="_blank" rel="noopener">공고 원문 열기</a>{% endif %}
+  {% if c.decision %}· <span class="badge {{ c.decision }}">{{ c.decision }}{% if c.reason %} · {{ reasons[c.reason].label }}{% endif %}</span>{% endif %}
+</p>
+
+<div class="two">
+  <div class="card">
+    <pre class="body">{{ c.body or '(본문이 저장되지 않은 항목입니다. 수집을 한 번 돌리면 채워집니다. 원문 링크를 열어 확인하세요.)' }}</pre>
+  </div>
+
+  <div class="stack">
+    <div class="card pad">
+      <dl class="facts">
+        <dt>마감</dt><dd>{{ c.deadline or '확인필요' }}{% if days_left is not none %} (D-{{ days_left }}){% endif %}</dd>
+        <dt>주최</dt><dd>{{ c.host or '—' }}</dd>
+        <dt>분야</dt><dd>{{ c.field or '—' }}</dd>
+        <dt>학부</dt><dd>{{ c.school }}</dd>
+        <dt>참가 자격</dt><dd>{{ c.eligibility or '확인필요' }}</dd>
+        <dt>팀 인원</dt><dd>{{ c.team_size or '확인필요' }}</dd>
+        <dt>일정</dt><dd>{{ c.schedule or '확인필요' }}</dd>
+        <dt>참가비</dt><dd>{{ c.fee or '확인필요' }}</dd>
+        <dt>상금</dt><dd>{{ c.prize or '—' }}</dd>
+      </dl>
+      <h2>자동 판정</h2>
+      <dl class="facts">
+        <dt>재학생</dt><dd>{{ c.judge_student or '—' }}</dd>
+        <dt>팀</dt><dd>{{ c.judge_team or '—' }}</dd>
+        <dt>마감</dt><dd>{{ c.judge_deadline or '—' }}</dd>
+      </dl>
+      <p class="meta" style="margin-top:10px">
+        자동 판정은 보조 수단입니다. '확인필요'는 틀렸다는 뜻이 아니라 근거를 못 찾았다는 뜻입니다.
+      </p>
+    </div>
+
+    <form class="card pad stack" method="post" action="{{ url_for('review', cid=c.id) }}">
+      <input type="hidden" name="back" value="{{ back }}">
+      <h2 style="margin-top:0">검수</h2>
+      <label class="row">기각 사유 (기각할 때만)
+        <select name="reason">
+          {% for key, r in reasons.items() %}
+            <option value="{{ key }}" {{ 'selected' if c.reason==key }}>{{ r.label }}{% if r.teaches %} — 규칙 학습에 반영{% endif %}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="row">담당자
+        <input type="text" name="owner" value="{{ c.owner or '' }}" placeholder="이름">
+      </label>
+      <label class="row">메모
+        <input type="text" name="note" value="{{ c.note or '' }}" placeholder="공지에 함께 나갈 한 줄">
+      </label>
+      <div style="display:flex; gap:8px">
+        <button class="ok" name="decision" value="확정" type="submit">확정</button>
+        <button class="no" name="decision" value="기각" type="submit">기각</button>
+        <button name="decision" value="보류" type="submit">보류</button>
+        {% if c.decision %}<button name="decision" value="취소" type="submit">판단 취소</button>{% endif %}
+      </div>
+      <p class="meta">
+        '재학생이 참가할 수 없음' · '팀 참가가 안 됨'으로 기각하면 그 공고가
+        <b>부정 사례</b>로 쌓여 판정 규칙이 같은 실수를 덜 하게 됩니다.
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}

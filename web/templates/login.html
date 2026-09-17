@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}로그인 · 공모전 검수{% endblock %}
+{% block body %}
+<div class="login">
+  <div class="card">
+    <h1>공모전 검수</h1>
+    <form method="post">
+      <input type="text" name="user" placeholder="아이디" autofocus autocomplete="username">
+      <input type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
+      <button class="primary" type="submit">들어가기</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,231 @@
+{
+ "count": 6,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 2229,
+   "uname": "creativeminds",
+   "title": "Creative Minds Jam #1: Hong Kong",
+   "image_url": "https://cdn.dorahacks.io/static/files/19f8c6e5fb5789d73537ebb4298a2026.png",
+   "ecosystem": "Minds by Animoca Brands",
+   "tags": "AI Agents,Creator Economy,Web3,SANDchain,Minds by Animoca Brands,Animoca Brands,The Sandbox",
+   "visibility": 0,
+   "owner": {
+    "id": 15666,
+    "name": "Vibe Valley",
+    "logo": "https://cdn.dorahacks.io/static/files/19eaf67e49072f5c61e0a0f43a78307a.jpeg"
+   },
+   "timeline_start": 1784649660,
+   "timeline_end": 1787932740,
+   "timeline_pre_register": 1785168060,
+   "timeline_old_end": null,
+   "is_extended": false,
+   "venue_form": "Virtual",
+   "venue_country_id": null,
+   "venue_city_id": null,
+   "venue_name": null,
+   "venue_address": null,
+   "bonus_price": 10000,
+   "bonus_token": "USD",
+   "bonus_description": [],
+   "buidls_count": 74,
+   "hackers_count": 177,
+   "winner_announced": false,
+   "weight": 0,
+   "is_organizer": false,
+   "is_collaborator": false
+  },
+  {
+   "id": 965,
+   "uname": "aptos-evermove-2025-hk",
+   "title": "APTOS EVERMOVE Hackerhouse Hong Kong 2025",
+   "image_url": "https://cdn.dorahacks.io/static/files/195adfe412f86978ebfa1c0493b8dae6.png",
+   "ecosystem": "Aptos",
+   "tags": "Aptos,Web3,Movemaker",
+   "visibility": 0,
+   "owner": {
+    "id": 3313,
+    "name": "Movemaker",
+    "logo": "https://cdn.dorahacks.io/static/files/195adef8bdb03f418eb4ea947d4ba87a.jpg"
+   },
+   "timeline_start": 1742335200,
+   "timeline_end": 1743804000,
+   "timeline_pre_register": 1743177540,
+   "timeline_old_end": null,
+   "is_extended": false,
+   "venue_form": "IRL",
+   "venue_country_id": 92,
+   "venue_city_id": 1344982653,
+   "venue_name": "Telegraph Bay，HK",
+   "venue_address": null,
+   "bonus_price": 514780,
+   "bonus_token": "USD",
+   "bonus_description": [],
+   "buidls_count": 0,
+   "hackers_count": 44,
+   "winner_announced": false,
+   "weight": 0,
+   "is_organizer": false,
+   "is_collaborator": false
+  },
+  {
+   "id": 362,
+   "uname": "icphackerhouse-hk",
+   "title": "ICP Hackathon @Hong Kong",
+   "image_url": "https://cdn.dorahacks.io/static/files/18e606a62970772f06deeb841d39d67a.png",
+   "ecosystem": "ICP",
+   "tags": "Blockchain",
+   "visibility": 0,
+   "owner": {
+    "id": 2072,
+    "name": "Blockchain Academy",
+    "logo": "https://cdn.dorahacks.io/static/files/18e57113c1475df80051c7940459a364.jpg"
+   },
+   "timeline_start": 1710986400,
+   "timeline_end": 1712646000,
+   "timeline_pre_register": 0,
+   "timeline_old_end": null,
+   "is_extended": false,
+   "venue_form": "IRL",
+   "venue_country_id": 92,
+   "venue_city_id": 1344982653,
+   "venue_name": "K11 Atelier King's Road",
+   "venue_address": null,
+   "bonus_price": 10000,
+   "bonus_token": "USD",
+   "bonus_description": [],
+   "buidls_count": 0,
+   "hackers_count": 46,
+   "winner_announced": false,
+   "weight": 0,
+   "is_organizer": false,
+   "is_collaborator": false
+  },
+  {
+   "id": 2358,
+   "uname": "event-contracts",
+   "title": "Event Contracts Hackathon",
+   "image_url": "https://cdn.dorahacks.io/static/files/1a0002419ec0edeba88d90b420ba9f21.png",
+   "ecosystem": "DeFi,Event Contracts,DreamDex",
+   "tags": "DeFi,Event Contracts,Prediction Markets",
+   "visibility": 0,
+   "owner": {
+    "id": 3427,
+    "name": "Somnia Network",
+    "logo": "https://cdn.dorahacks.io/static/files/19db3b8e9a85b89d6fb3d75404bb4550.png"
+   },
+   "timeline_start": 1787011200,
+   "timeline_end": 1789149600,
+   "timeline_pre_register": 1787616000,
+   "timeline_old_end": 1788890400,
+   "is_extended": true,
+   "venue_form": "Virtual",
+   "venue_country_id": null,
+   "venue_city_id": null,
+   "venue_name": null,
+   "venue_address": null,
+   "bonus_price": 5000,
+   "bonus_token": "USD",
+   "bonus_description": [],
+   "buidls_count": 208,
+   "hackers_count": 469,
+   "winner_announced": false,
+   "weight": 12000,
+   "is_organizer": false,
+   "is_collaborator": false
+  },
+  {
+   "id": 2385,
+   "uname": "web3-social-good-2026",
+   "title": "From Vision to Impact: Building Web3 for Social Good — Collaborate. Innovate. Build for Good 2026",
+   "image_url": "https://cdn.dorahacks.io/static/files/1a0861084eb12fbfd5a880d42beb7c65.png",
+   "ecosystem": "Blockchain,Decentralized Identity,DAPP,Web3",
+   "tags": "Web3,Social Impact,Blockchain,AI,Sustainability",
+   "visibility": 0,
+   "owner": {
+    "id": 16154,
+    "name": "School of Computing and Information Systems, SMU",
+    "logo": "https://cdn.dorahacks.io/static/files/1a07fd034ad120e9f84ec2642d49e449.png"
+   },
+   "timeline_start": 1787702400,
+   "timeline_end": 1792886400,
+   "timeline_pre_register": 0,
+   "timeline_old_end": null,
+   "is_extended": false,
+   "venue_form": "IRL",
+   "venue_country_id": 190,
+   "venue_city_id": 1702341327,
+   "venue_name": "Singapore Management University (SMU)",
+   "venue_address": "80 Stamford Road, Singapore 178902",
+   "bonus_price": 0,
+   "bonus_token": "USD",
+   "bonus_description": [
+    {
+     "id": 1,
+     "name": "Pending"
+    }
+   ],
+   "buidls_count": 0,
+   "hackers_count": 4,
+   "winner_announced": false,
+   "weight": 10000,
+   "is_organizer": false,
+   "is_collaborator": false
+  },
+  {
+   "id": 2183,
+   "uname": "next-hackathon",
+   "title": "SuperAI NEXT Hackathon",
+   "image_url": "https://cdn.dorahacks.io/static/files/19e93857a27544f5f2e28854cbda47f9.jpg",
+   "ecosystem": "AWS,Vercel,Stripe,Exa",
+   "tags": "NEXT,AI",
+   "visibility": 0,
+   "owner": {
+    "id": 4472,
+    "name": "Amazon Web Services",
+    "logo": "https://cdn.dorahacks.io/static/files/19951748d6e2b1bea8e2dca48c5b6b4d.jpeg"
+   },
+   "timeline_start": 1780977600,
+   "timeline_end": 1781108400,
+   "timeline_pre_register": 0,
+   "timeline_old_end": null,
+   "is_extended": false,
+   "venue_form": "IRL",
+   "venue_country_id": 190,
+   "venue_city_id": 1702341327,
+   "venue_name": "Marina Bay Sands",
+   "venue_address": "10 Bayfront Avenue, Singapore 018956",
+   "bonus_price": 0,
+   "bonus_token": "USD",
+   "bonus_description": [
+    {
+     "id": 1,
+     "name": "$125K AWS Credits"
+    },
+    {
+     "id": 2,
+     "name": "$7.5K Vercel Credits"
+    },
+    {
+     "id": 3,
+     "name": "$3K EXA Credits"
+    },
+    {
+     "id": 4,
+     "name": "$10K worth of Razer merchandise"
+    },
+    {
+     "id": 5,
+     "name": "$5K Stripe credits"
+    }
+   ],
+   "buidls_count": 76,
+   "hackers_count": 162,
+   "winner_announced": false,
+   "weight": 0,
+   "is_organizer": false,
+   "is_collaborator": false
+  }
+ ]
+}

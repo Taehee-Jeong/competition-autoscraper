@@ -1,0 +1,40 @@
+name: 규칙 자동 진화 (AlphaEvolve)
+
+on:
+  schedule:
+    - cron: "0 1 1 * *"   # 매월 1일 10:00 KST
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Ollama 설치 및 모델 준비
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 5
+          ollama pull qwen2.5:3b
+      - name: 검수 결과 수확 + 규칙 진화
+        env:
+          OLLAMA_HOST: http://localhost:11434
+          OLLAMA_MODEL: qwen2.5:3b
+          GENERATIONS: "10"
+          POPULATION: "6"
+        run: python evolve.py
+      - name: 진화 결과 커밋
+        run: |
+          git config user.name "competition-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/rules.json data/evolve_log.json data/평가셋.jsonl
+          git diff --cached --quiet || git commit -m "규칙 진화: $(date +'%Y-%m-%d')"
+          git push

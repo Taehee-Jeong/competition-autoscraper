@@ -1,0 +1,50 @@
+name: 컴피티션 자동 리서치
+
+on:
+  schedule:
+    # 매주 월요일 09:00 KST (00:00 UTC)
+    - cron: "0 0 * * 1"
+  workflow_dispatch: {}   # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: Ollama 설치 및 모델 준비
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 5
+          ollama pull ${OLLAMA_MODEL:-qwen2.5:3b}
+        env:
+          OLLAMA_MODEL: qwen2.5:3b
+
+      - name: 스크래핑 실행
+        env:
+          OLLAMA_HOST: http://localhost:11434
+          OLLAMA_MODEL: qwen2.5:3b     # 한국어 정확도 우선 시 exaone3.5:2.4b
+          PAGES: "3"
+          MAX_DETAILS: "60"
+          LLM_MAX_ITEMS: "40"          # CPU 러너 실행시간 관리용 상한
+        run: python main.py
+
+      - name: 결과 커밋
+        run: |
+          git config user.name "competition-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "자동 업데이트: $(date +'%Y-%m-%d') 후보 목록"
+          git push

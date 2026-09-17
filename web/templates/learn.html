@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>크롤링 · 스크래핑 10일 — 하루 한 시간</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='learn.css') }}">
+</head>
+<body>
+
+<aside>
+  <div class="brand">크롤링 · 스크래핑<span>10일 · 하루 한 시간</span></div>
+  <div class="bar"><i id="bar"></i></div>
+  <p class="prog"><b id="done">0</b> / {{ days|length }}일 마침</p>
+  <nav id="nav">
+    {% for d in days %}
+    <a href="#day{{ loop.index }}" data-day="{{ loop.index }}">
+      <span class="num">{{ loop.index }}</span>
+      <span class="ttl">{{ d.title }}{% if d.kind %}<em>{{ d.kind }}</em>{% endif %}</span>
+      <span class="chk">✓</span>
+    </a>
+    {% endfor %}
+  </nav>
+  <p class="foot">
+    막히면 <code>입문.md</code> · <code>태희_크롤링_실습.md</code><br>
+    검수 웹 → <a href="/">후보 목록</a>
+  </p>
+</aside>
+
+<main>
+  <header class="intro">
+    <h1>크롤링 · 스크래핑 10일 과정</h1>
+    <p>
+      태희 씨, 반가워요. 하루 한 시간이면 충분해요. 열흘 뒤엔
+      <b>새 공모전 사이트를 직접 붙일 수</b> 있게 됩니다.
+    </p>
+    <p>
+      한 가지만 부탁드릴게요. <b>읽지만 마시고 꼭 직접 쳐보세요.</b>
+      그리고 예상과 다르게 나오면 <b>거기서 멈추셔도 됩니다.</b>
+      사실 그게 이 공부의 전부예요 — 왜 다른지 들여다보는 것.
+      크롤링은 원래 예상대로 안 되는 일이 절반이라, 그때마다 “아 이래서 그렇구나” 하는 게 실력이 됩니다.
+    </p>
+    <p class="meta">
+      막히면 언제든 물어보세요. 혼자 오래 붙잡고 있는 것보다 훨씬 빠릅니다.
+    </p>
+    <div class="map">
+      <b>두 가지를 같이 배워요.</b>
+      <div class="maprow">
+        <span class="tag crawl">크롤링</span>
+        <span class="mapdesc">링크를 타고 돌아다니며 <b>페이지를 모으는</b> 일 — 3일차</span>
+      </div>
+      <div class="maprow">
+        <span class="tag scrape">스크래핑</span>
+        <span class="mapdesc">모은 페이지에서 <b>필요한 값을 뽑는</b> 일 — 2 · 4 · 7일차</span>
+      </div>
+      <p class="meta" style="margin:8px 0 0">
+        실무에선 둘을 묶어 그냥 “크롤링”이라 불러요. 구분 못 해도 당장 큰일 나진 않지만,
+        막혔을 때 어느 쪽이 문제인지 알면 고치는 시간이 확 줄어듭니다.
+      </p>
+    </div>
+
+    <p class="tip">
+      시작 전에 터미널에서 딱 한 번만 쳐주세요:
+      <code>cd "/home/schoaq/competition-autoscraper 2"</code>
+      <span class="meta">폴더 이름에 공백이 있어서 따옴표를 빼면 에러가 나요. 저도 매번 까먹습니다.</span>
+    </p>
+  </header>
+
+  {% for d in days %}
+  <section class="day" id="day{{ loop.index }}">
+    <div class="dayhead">
+      <span class="badge">{{ loop.index }}일차</span>
+      <h2>{{ d.title }}</h2>
+      <span class="mins">{{ d.mins }}</span>
+    </div>
+    <p class="goal"><b>오늘의 목표</b> — {{ d.goal }}</p>
+
+    {% for b in d.blocks %}
+      {% if b.h %}<h3>{{ b.h }}</h3>{% endif %}
+      {% if b.p %}<p>{{ b.p|safe }}</p>{% endif %}
+      {% if b.svg %}
+      <figure class="fig">
+        {{ b.svg|safe }}
+        {% if b.cap %}<figcaption>{{ b.cap|safe }}</figcaption>{% endif %}
+      </figure>
+      {% endif %}
+      {% if b.code %}
+      <div class="codewrap">
+        <button class="copy" type="button">복사</button>
+        <pre><code>{{ b.code }}</code></pre>
+      </div>
+      {% endif %}
+      {% if b.out %}
+      <p class="outlabel">이렇게 나오면 성공</p>
+      <pre class="out">{{ b.out }}</pre>
+      {% endif %}
+      {% if b.note %}<div class="note">{{ b.note|safe }}</div>{% endif %}
+      {% if b.warn %}<div class="warn">{{ b.warn|safe }}</div>{% endif %}
+    {% endfor %}
+
+    <details class="quiz">
+      <summary>확인 문제</summary>
+      <ol>{% for q in d.quiz %}<li>{{ q.q }}<span class="ans">{{ q.a }}</span></li>{% endfor %}</ol>
+      <p class="meta">답은 문제를 눌러야 보입니다. 먼저 스스로 답해보세요.</p>
+    </details>
+
+    <p class="wrap"><b>오늘 남길 한 줄</b> — {{ d.takeaway }}</p>
+    <label class="done"><input type="checkbox" data-day="{{ loop.index }}"> {{ loop.index }}일차 마침</label>
+  </section>
+  {% endfor %}
+
+  <footer>
+    <h2>열흘을 마치면</h2>
+    <p>
+      고생 많으셨어요. 이제 <code>DEVELOPMENT.md</code> §8을 보고 새 사이트를 하나 붙여보세요.
+      지금 붙어 있는 16곳도 전부 같은 방법으로 붙인 거라, 특별한 게 없습니다.
+      막히면 <code>scraper/wevity.py</code>(HTML형)와 <code>scraper/devpost.py</code>(API형)를
+      나란히 놓고 비교하는 게 제일 빨라요.
+    </p>
+    <p>
+      그리고 하나 더. 여기 나온 사고들 — 메뉴가 섞여 들어온 일, 프롬프트를 그대로 베낀 일,
+      26분치가 마지막 한 칸 때문에 날아간 일 — 전부 <b>이 프로젝트에서 실제로 벌어진 일</b>입니다.
+      태희 씨도 비슷한 걸 겪으실 텐데, 그때 “나만 이러나” 하지 마세요. 원래 다 그렇게 배웁니다.
+    </p>
+  </footer>
+</main>
+
+<script>
+const KEY = 'learn-done-v1';
+const load = () => new Set(JSON.parse(localStorage.getItem(KEY) || '[]'));
+const save = s => localStorage.setItem(KEY, JSON.stringify([...s]));
+
+function paint() {
+  const s = load(), total = {{ days|length }};
+  document.querySelectorAll('input[data-day]').forEach(c => c.checked = s.has(+c.dataset.day));
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('ok', s.has(+a.dataset.day)));
+  document.getElementById('done').textContent = s.size;
+  document.getElementById('bar').style.width = (s.size / total * 100) + '%';
+}
+document.querySelectorAll('input[data-day]').forEach(c => c.onchange = () => {
+  const s = load(); c.checked ? s.add(+c.dataset.day) : s.delete(+c.dataset.day);
+  save(s); paint();
+});
+document.querySelectorAll('.copy').forEach(b => b.onclick = async () => {
+  await navigator.clipboard.writeText(b.parentElement.querySelector('code').textContent);
+  b.textContent = '복사됨'; setTimeout(() => b.textContent = '복사', 1200);
+});
+document.querySelectorAll('.quiz li').forEach(li => li.onclick = () => li.classList.toggle('show'));
+
+const secs = [...document.querySelectorAll('section.day')];
+addEventListener('scroll', () => {
+  const y = scrollY + 120;
+  let cur = secs.findLast(s => s.offsetTop <= y) || secs[0];
+  document.querySelectorAll('#nav a').forEach(a =>
+    a.classList.toggle('now', a.getAttribute('href') === '#' + cur.id));
+}, { passive: true });
+paint();
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>후보 목록</h1>
+<p class="sub">애매한 건은 버리지 않고 남겨둡니다. 확정·기각을 눌러주시면 그 판단이 판정 규칙 학습에 쓰입니다.</p>
+
+{% if running %}
+<div class="running">
+  수집이 돌고 있습니다 — {{ progress }}
+  <a href="{{ url_for('runs') }}">진행 보기</a>
+</div>
+{% endif %}
+
+{% if dupe_count %}
+<div class="flash">같은 대회로 보이는 쌍이 {{ dupe_count }}개 있습니다.
+  <a href="{{ url_for('dupes') }}">확인하고 합치기</a></div>
+{% endif %}
+
+<div class="tally">
+  {% for k in ['전체', '미검수', '확정', '기각', '보류'] %}
+    {% set v = counts.get(k, 0) %}
+    {% set sel = (k == '전체' and not f.decision) or f.decision == k %}
+    <a class="{{ 'on' if sel }}"
+       href="{{ url_for('index', decision='' if k=='전체' else k, status=f.status,
+                        school=f.school, source=f.source, q=f.q, sort=sort) }}">
+      {{ k }} <b>{{ v }}</b></a>
+  {% endfor %}
+  {% if ai.대기 %}
+    <a class="{{ 'on' if f.decision == 'AI제안' }}"
+       href="{{ url_for('index', decision='AI제안', status=f.status, school=f.school,
+                        source=f.source, q=f.q, sort=sort) }}">
+      AI 제안 <b>{{ ai.대기 }}</b></a>
+  {% endif %}
+</div>
+
+<div class="card pad bulk">
+  <form method="post" action="{{ url_for('bulk_confirm') }}">
+    <input type="hidden" name="back" value="{{ request.full_path }}">
+    <b>점수로 한 번에 확정</b>
+    <span class="meta">사람이 690건을 하나씩 누를 순 없으니까요.</span>
+    <div class="bulkrow">
+      <label class="row">기준 점수
+        <input type="number" name="threshold" value="{{ threshold }}" min="0" max="100">
+      </label>
+      <button class="primary" type="submit">이 점수 이상 전부 확정</button>
+      <span class="meta">
+        담당자 칸에 <b>자동(N점↑)</b>으로 남습니다. 하나씩 되돌릴 수 있고,
+        <b>규칙 학습에는 쓰지 않습니다</b> — 사람이 직접 본 판단만 학습에 씁니다.
+      </span>
+    </div>
+  </form>
+</div>
+
+<details class="card pad aibox" {{ 'open' if ai.대기 }}>
+  <summary><b>AI 자동 검수</b>
+    <span class="meta">사람이 다 보기 어려울 때 — 미검수 {{ counts.get('미검수', 0) }}건</span>
+  </summary>
+
+  {% if ai.대기 %}
+  <p class="meta" style="margin:10px 0 4px">
+    AI가 제안한 <b>{{ ai.대기 }}건</b>이 대기 중입니다
+    (확정 {{ ai.확정 }} · 기각 {{ ai.기각 }} · 확신 높음 {{ ai.확신높음 }}{% if ai.판단보류 %} · 판단보류 {{ ai.판단보류 }}{% endif %}).
+    적용하면 담당자 칸에 <b>AI</b>로 남고, 나중에 하나씩 되돌릴 수 있습니다.
+  </p>
+  <div class="aiapply">
+    {% for label, only, conf in [('확신 높은 것만 적용', '', '높음'),
+                                 ('확정 제안만 적용', '확정', ''),
+                                 ('전부 적용', '', '')] %}
+    <form method="post" action="{{ url_for('ai_apply') }}">
+      <input type="hidden" name="only" value="{{ only }}">
+      <input type="hidden" name="min_confidence" value="{{ conf }}">
+      <input type="hidden" name="back" value="{{ request.full_path }}">
+      <button type="submit" class="{{ 'primary' if conf == '높음' }}">{{ label }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('ai_judge') }}" class="aiapply" style="margin-top:10px">
+    <button type="submit">{{ 'AI로 다시 훑기' if ai.대기 else 'AI에게 판정 맡기기' }}</button>
+    <label class="src" style="border:none; padding:0">
+      <input type="checkbox" name="redo"> <span class="meta">이미 판정한 것도 다시</span>
+    </label>
+  </form>
+  <p class="meta" style="margin:8px 0 0">
+    이 모델은 작아서 근거 없이 단정하는 일이 있습니다. 그래서 AI 판단은 사람 칸에 바로
+    들어가지 않고 <b>제안</b>으로만 남으며, 본문에서 옮긴 근거 문장이 없으면 확신을 '낮음'으로
+    떨어뜨립니다. <b>AI가 적용한 판단은 규칙 학습(평가셋)에 쓰지 않습니다</b> —
+    제 출력으로 제 규칙을 배우면 안 되니까요.
+  </p>
+</details>
+
+<form class="filters" method="get">
+  <input type="hidden" name="decision" value="{{ f.decision }}">
+  <select name="status">
+    <option value="">자동판정 전체</option>
+    {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if f.status==s }}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="school">
+    <option value="">학부 전체</option>
+    {% for s in schools %}<option value="{{ s }}" {{ 'selected' if f.school==s }}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="source">
+    <option value="">소스 전체</option>
+    {% for s in sources %}<option value="{{ s }}" {{ 'selected' if f.source==s }}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    {% for key, label in sort_labels %}
+    <option value="{{ key }}" {{ 'selected' if sort==key }}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" value="{{ f.q }}" placeholder="대회명·주최·분야 검색">
+  <button type="submit">적용</button>
+  <a class="ghost" href="{{ url_for('index') }}">초기화</a>
+</form>
+
+{% if not rows %}
+  <div class="card empty">조건에 맞는 대회가 없습니다.</div>
+{% else %}
+<table>
+  <tr>
+    <th>점수</th><th>대회명</th><th>마감</th><th>학부 · 상금</th><th>평가 근거</th><th></th>
+  </tr>
+  {% for c, pts, gr, why in rows %}
+  {% set left = days_left(c.deadline) %}
+  <tr class="{{ 'decided' if c.decision }}">
+    <td class="score {{ gr }}"><b>{{ pts }}</b><div class="meta">{{ gr }}</div></td>
+    <td>
+      <a class="title" href="{{ url_for('detail', cid=c.id, back=request.full_path) }}">{{ c.title }}</a>
+      {% if c.link %}<a class="ext" href="{{ c.link }}" target="_blank" rel="noopener noreferrer"
+         title="{{ c.link }}">공고 열기 ↗</a>{% endif %}
+      {% if c.decision %}<span class="badge {{ c.decision }}">{{ c.decision }}{% if c.reason %} · {{ reasons[c.reason].label }}{% endif %}</span>{% endif %}
+      <div class="meta">{{ c.source }}{% if c.host %} · {{ c.host }}{% endif %}</div>
+    </td>
+    <td class="dday {{ 'soon' if left is not none and left < 14 else ('near' if left is not none and left < 30 else '') }}">
+      {% if left is none %}확인필요{% else %}D-{{ left }}{% endif %}
+      <div class="meta">{{ c.deadline or '' }}</div>
+    </td>
+    <td>{{ c.school|replace('School of ','')|replace('Academy of ','') }}
+      {% set won = prize_won(c.prize) %}
+      {% if won %}<div class="meta">
+        {%- if won >= 100000000 %}{{ (won / 100000000)|round(1) }}억
+        {%- elif won >= 10000 %}{{ (won / 10000)|int }}만원
+        {%- else %}{{ won }}원{% endif %}</div>{% endif %}
+    </td>
+    <td class="why">{{ why }}</td>
+    <td class="acts">
+      {% if c.decision %}
+        {% if c.review_source == 'ai' %}<span class="badge 의심">AI 적용</span>{% endif %}
+        <form method="post" action="{{ url_for('review', cid=c.id) }}">
+          <input type="hidden" name="decision" value="취소">
+          <input type="hidden" name="back" value="{{ request.full_path }}">
+          <button type="submit">판단 취소</button>
+        </form>
+      {% else %}
+        {% if c.ai_decision and c.ai_decision != '판단보류' %}
+        <form method="post" action="{{ url_for('review', cid=c.id) }}" title="{{ c.ai_rationale or '' }}">
+          <input type="hidden" name="decision" value="{{ c.ai_decision }}">
+          <input type="hidden" name="reason" value="{{ c.ai_reason or '' }}">
+          <input type="hidden" name="back" value="{{ request.full_path }}">
+          <button class="{{ 'ok' if c.ai_decision == '확정' else 'no' }}" type="submit">
+            AI: {{ c.ai_decision }}{% if c.ai_confidence != '높음' %}?{% endif %} 적용
+          </button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ url_for('review', cid=c.id) }}">
+          <input type="hidden" name="decision" value="확정">
+          <input type="hidden" name="back" value="{{ request.full_path }}">
+          <button class="ok" type="submit">확정</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('detail', cid=c.id, back=request.full_path) }}"><button class="no" type="button">보기…</button></a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<div class="card pad dl">
+  <b>엑셀로 받기</b>
+  <div class="dlrow">
+    <a href="{{ url_for('export_xlsx', only='확정') }}"><button class="primary" type="button">
+      확정건만 ({{ counts.get('확정', 0) }}건)</button></a>
+    <a href="{{ url_for('export_xlsx') }}"><button type="button">
+      전체 ({{ counts.get('전체', 0) }}건)</button></a>
+    <a href="{{ url_for('export_xlsx', only='보류') }}"><button type="button">
+      보류만 ({{ counts.get('보류', 0) }}건)</button></a>
+    <span class="meta">
+      확정건 엑셀이 <b>공지에 그대로 쓰는 파일</b>입니다. 기존 확정 목록과 같은 15컬럼에
+      적합도 점수·평가 근거 2칸이 뒤에 붙어 있습니다.
+    </span>
+  </div>
+</div>
+
+<p class="sub" style="margin-top:14px">
+  기각은 사유를 골라야 해서 상세 화면에서 처리합니다 — 그 사유가 규칙 학습에 쓰입니다.
+  <form method="post" action="{{ url_for('export_goldenset') }}" style="display:inline">
+    <button type="submit">검수 결과를 평가셋으로 내보내기</button>
+  </form>
+</p>
+{% endif %}
+{% endblock %}

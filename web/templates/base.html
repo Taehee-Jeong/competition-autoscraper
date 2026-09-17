@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}공모전 검수{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if session.user %}
+<header>
+  <a class="brand" href="{{ url_for('index') }}">공모전 검수</a>
+  <nav>
+    <a href="{{ url_for('index') }}" {% if request.endpoint=='index' %}class="on"{% endif %}>후보 목록</a>
+    <a href="{{ url_for('dupes') }}" {% if request.endpoint=='dupes' %}class="on"{% endif %}>중복 확인</a>
+    <a href="{{ url_for('runs') }}" {% if request.endpoint=='runs' %}class="on"{% endif %}>수집 실행</a>
+  </nav>
+  <span class="spacer"></span>
+  <a class="ghost" href="{{ url_for('export_xlsx', only='확정') }}">확정건 엑셀</a>
+  <a class="ghost" href="{{ url_for('export_xlsx') }}">전체 엑셀</a>
+  <span class="who">{{ session.user }}</span>
+  <a class="ghost" href="{{ url_for('logout') }}">로그아웃</a>
+</header>
+{% endif %}
+
+<main>
+  {% with msgs = get_flashed_messages() %}
+    {% if msgs %}<div class="flash">{% for m in msgs %}<p>{{ m }}</p>{% endfor %}</div>{% endif %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+</main>
+</body>
+</html>

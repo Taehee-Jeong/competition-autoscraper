@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}중복 확인 · 공모전 검수{% endblock %}
+{% block body %}
+<h1>중복 확인</h1>
+<p class="sub">
+  국내 사이트 다섯 곳이 같은 공고를 각자 올립니다. 띄어쓰기·괄호만 다른 건 수집할 때 이미 합쳐지고,
+  여기 남는 건 <b>단어가 한둘 다른 것</b>들입니다. 같은 대회가 셋에 걸쳐 있는 경우도 있어서
+  짝이 아니라 <b>묶음</b>으로 보여드립니다.
+</p>
+
+<div class="card pad bulk">
+  <form method="get" class="bulkrow" style="margin:0">
+    <label class="row">얼마나 비슷하면 같은 대회로 볼까요
+      <select name="th" onchange="this.form.submit()">
+        {% for v, label in [(0.95, '0.95 — 거의 같을 때만'), (0.90, '0.90 — 엄격'),
+                            (0.85, '0.85 — 보통 (권장)'), (0.80, '0.80 — 느슨'),
+                            (0.75, '0.75 — 아주 느슨')] %}
+        <option value="{{ v }}" {{ 'selected' if th == v }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <span class="meta">낮출수록 많이 잡지만 다른 대회까지 묶일 수 있습니다.</span>
+  </form>
+
+  <div class="bulkrow" style="margin-top:12px">
+    <form method="post" action="{{ url_for('merge_auto') }}">
+      <input type="hidden" name="th" value="{{ th }}">
+      <button class="primary" type="submit" {{ 'disabled' if not groups }}>
+        {{ groups|length }}묶음 자동으로 합치기
+      </button>
+    </form>
+    <form method="post" action="{{ url_for('merge_undo') }}">
+      <button type="submit">합친 것 되돌리기</button>
+    </form>
+    <span class="meta">
+      묶음마다 <b>적합도 점수가 가장 높은 줄</b>만 남깁니다(같으면 본문·링크가 있는 쪽, 그다음 먼저 들어온 쪽).
+      <b>이미 검수한 줄이 든 묶음은 건드리지 않습니다</b> — 판단한 것이 조용히 사라지면 안 되니까요.
+    </span>
+  </div>
+</div>
+
+{% if not groups %}
+  <div class="card empty">이 기준에서 겹치는 묶음이 없습니다.</div>
+{% else %}
+<table>
+  <tr><th>남길 것</th><th>합쳐질 것</th><th></th></tr>
+  {% for keep, group in groups %}
+  <tr>
+    <td>
+      <a class="title" href="{{ url_for('detail', cid=keep.id, back=url_for('dupes', th=th)) }}">{{ keep.title }}</a>
+      {% if keep.link %}<a class="ext" href="{{ keep.link }}" target="_blank" rel="noopener noreferrer">공고 ↗</a>{% endif %}
+      <div class="meta">
+        {{ keep.source }} · {{ score(keep) }}점 ·
+        {% set l = days_left(keep.deadline) %}{% if l is none %}마감 확인필요{% else %}D-{{ l }}{% endif %}
+        {% if keep.decision %} · <span class="badge {{ keep.decision }}">{{ keep.decision }}</span>{% endif %}
+      </div>
+    </td>
+    <td>
+      {% for r in group if r.id != keep.id %}
+      <div style="margin-bottom:6px">
+        <a href="{{ url_for('detail', cid=r.id, back=url_for('dupes', th=th)) }}">{{ r.title }}</a>
+        <div class="meta">
+          {{ r.source }} · {{ score(r) }}점
+          {% if r.decision %} · <span class="badge {{ r.decision }}">{{ r.decision }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </td>
+    <td class="acts">
+      {% for r in group if r.id != keep.id %}
+      <form method="post" action="{{ url_for('do_merge') }}">
+        <input type="hidden" name="keep_id" value="{{ keep.id }}">
+        <input type="hidden" name="dup_id" value="{{ r.id }}">
+        <button type="submit">이것만 합치기</button>
+      </form>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="sub" style="margin-top:12px">
+  합쳐진 줄은 목록과 엑셀에서 빠집니다. 지워지는 게 아니라 숨는 것이라 언제든 되돌릴 수 있습니다.
+</p>
+{% endif %}
+{% endblock %}

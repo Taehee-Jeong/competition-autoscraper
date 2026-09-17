@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}수집 실행 · 공모전 검수{% endblock %}
+{% block body %}
+<h1>수집 실행</h1>
+<p class="sub">
+  평소에는 매주 월요일 아침 cron이 알아서 돌립니다. 여기서는 지금 당장 한 번 더 돌릴 때만 쓰면 됩니다.
+  전체 소스를 다 돌리면 <b>26분쯤</b> 걸립니다.
+</p>
+
+{% if running %}
+<div class="running">
+  지금 돌고 있습니다 (#{{ running.id }}, {{ running.started_at[11:16] }} 시작).
+  끝날 때까지 새로 시작할 수 없습니다.
+</div>
+{% else %}
+<form class="card pad" method="post" action="{{ url_for('start_run') }}">
+  <h2 style="margin-top:0">어디를 긁을까요</h2>
+  {% for kind in ['국내', '해외', '홍콩', '지원사업'] %}
+    {% if groups.get(kind) %}
+    <div class="srcgroup">
+      <div class="srchead">
+        {{ kind }}
+        <button type="button" class="linky" data-kind="{{ kind }}" data-on="1">전체</button>
+        <button type="button" class="linky" data-kind="{{ kind }}" data-on="0">해제</button>
+        {% if kind == '지원사업' %}<span class="meta">— 공모전이 아니라 기본은 꺼둡니다</span>{% endif %}
+      </div>
+      <div class="srclist">
+        {% for s in groups[kind] %}
+        <label class="src">
+          <input type="checkbox" name="source" value="{{ s.key }}" data-kind="{{ kind }}"
+                 {{ 'checked' if s.on }}>
+          <span><b>{{ s.name }}</b><br><span class="meta">{{ s.note }}</span></span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+
+  <div class="runopts">
+    <label class="row">소스당 최대 건수
+      <input type="text" name="max_details" placeholder="60" inputmode="numeric">
+    </label>
+    <label class="row">목록 페이지 수
+      <input type="text" name="pages" placeholder="3" inputmode="numeric">
+    </label>
+    <label class="src" style="align-self:end">
+      <input type="checkbox" name="use_llm" checked>
+      <span>로컬 LLM으로 빈칸 채우기<br><span class="meta">팀 인원·일정·참가비. 켜면 7분쯤 더 걸립니다</span></span>
+    </label>
+    <button class="primary" type="submit" style="align-self:end">지금 수집하기</button>
+  </div>
+  <p class="meta" style="margin:10px 0 0">
+    전체를 60건씩 돌리면 약 26분입니다. 급하면 건수를 10 정도로 줄이세요(약 7분).
+    사이트에 부담을 주지 않으려고 요청 사이에 1초씩 쉽니다.
+  </p>
+</form>
+<script>
+  document.querySelectorAll('button.linky').forEach(b => b.onclick = () => {
+    document.querySelectorAll(`input[data-kind="${b.dataset.kind}"]`)
+      .forEach(c => c.checked = b.dataset.on === '1');
+  });
+</script>
+{% endif %}
+
+{% if running %}
+<h2>진행 로그</h2>
+<pre class="log" id="log">{{ log }}</pre>
+<script>
+  const id = {{ running.id }};
+  async function poll() {
+    try {
+      const r = await fetch(`/runs/${id}/log`);
+      if (!r.ok) return;
+      const d = await r.json();
+      const el = document.getElementById('log');
+      el.textContent = d.log;
+      el.scrollTop = el.scrollHeight;
+      if (d.status !== 'running') { location.reload(); return; }
+    } catch (e) { /* 잠깐 실패해도 계속 시도 */ }
+    setTimeout(poll, 5000);
+  }
+  setTimeout(poll, 5000);
+</script>
+{% endif %}
+
+<h2>지난 실행</h2>
+{% if not runs %}
+  <div class="card empty">아직 웹에서 돌린 기록이 없습니다. cron으로 돌아간 것은 여기 안 남습니다.</div>
+{% else %}
+<table>
+  <tr><th>시작</th><th>상태</th><th>수집</th><th>필터 통과</th><th>신규</th><th>걸린 시간</th></tr>
+  {% for r in runs %}
+  <tr>
+    <td>{{ r.started_at|replace('T', ' ') }}</td>
+    <td>
+      {% if r.status == 'running' %}<span class="badge 보류">진행 중</span>
+      {% elif r.status == 'done' %}<span class="badge 확정">완료</span>
+      {% else %}<span class="badge 기각">실패</span>{% endif %}
+    </td>
+    <td>{{ r.collected if r.collected is not none else '—' }}</td>
+    <td>{{ r.passed if r.passed is not none else '—' }}</td>
+    <td>{{ r.added if r.added is not none else '—' }}</td>
+    <td class="meta">
+      {% if r.finished_at %}{{ ((r.finished_at|replace('T',' '))[11:16]) }} 종료{% else %}—{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
